@@ -1,0 +1,2 @@
+[database]
+DATABASE_URI: mysql://dbuser:dbpassword@localhost/databasename?charset=utf8&use_unicode=0
