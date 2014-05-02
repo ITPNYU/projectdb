@@ -1,13 +1,15 @@
 from flask import Flask
 from flask.ext.restless import APIManager
 #from projectdb.database import db_session
+from os import path.normpath, path.join, path.abspath
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from ConfigParser import SafeConfigParser
 
 config = SafeConfigParser()
-config.read('projectdb.cfg')
+config_path = path.normpath(path.join(path.abspath(__file__), '..', '..', 'projectdb.cfg'))
+config.read(config_path)
 
 engine = create_engine(config.get('database', 'DATABASE_URI'), convert_unicode=True)
 db_session = scoped_session(sessionmaker(autocommit=False,
