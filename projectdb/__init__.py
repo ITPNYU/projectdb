@@ -1,34 +1,19 @@
 from flask import Flask
 from flask.ext.restless import APIManager
-#from projectdb.database import db_session
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from ConfigParser import SafeConfigParser
-
-import os
-
-config = SafeConfigParser()
-config_path = os.path.normpath(os.path.join(os.path.abspath(__file__), '..', '..', 'projectdb.cfg'))
-config.read(config_path)
-
-engine = create_engine(config.get('database', 'DATABASE_URI'), convert_unicode=True)
-db_session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
-                                         bind=engine))
-Base = declarative_base()
-Base.query = db_session.query_property()
-
+from projectdb.authn import login_manager, auth_func
+from projectdb.config import config
+from projectdb.database import Base, db_session, engine
 from projectdb.models import Category, Class, Project, Tag, Term, Venue
 
-def init_db():
-    import projectdb.models
-    Base.metadata.create_all(bind=engine)
-
 app = Flask(__name__)
+app.secret_key = config.get('secrets', 'SECRET')
 
-# API endpoints
-manager = APIManager(app, session=db_session)
+# Flask-Login and authn code
+login_manager.init_app(app)
+
+# Flask-Restless API endpoints
+# note: GET preprocessors pulled in via projectdb.authn.auth_func
+manager = APIManager(app, session=db_session, preprocessors=dict(GET_SINGLE=[auth_func], GET_MANY=[auth_func]))
 category_blueprint = manager.create_api(Category, methods=['GET'], collection_name='category', url_prefix='/v1')
 class_blueprint = manager.create_api(Class, methods=['GET'], url_prefix='/v1')
 project_blueprint = manager.create_api(Project, methods=['GET'], url_prefix='/v1')

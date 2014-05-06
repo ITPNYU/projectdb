@@ -1,6 +1,6 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table, Text
 from sqlalchemy.orm import relationship
-from projectdb import Base, engine
+from projectdb.database import Base, engine
 
 # ORM classes
 class Category(Base):
@@ -84,4 +84,3 @@ venue_project = Table('venueProject', Base.metadata,
     Column('project_id', Integer, ForeignKey('project.project_id'), nullable=False),
     Column('venue_id', Integer, ForeignKey('venue.venue_id'), nullable=False)
 )
-
